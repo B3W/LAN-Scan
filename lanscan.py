@@ -6,8 +6,11 @@ from concurrent.futures import ThreadPoolExecutor
 import ipaddress
 import netifaces
 import socket
+import subprocess
 
-MAX_SCAN_WORKERS = 100
+MAX_SCAN_WORKERS = 25          # Number of workers in pool
+PING_CNT_ARG = '1'              # How many echo requests to send
+PING_TIMEOUT_MS_ARG = '500'     # Timeout in ms
 
 
 def get_netmask(host_ip):
@@ -33,17 +36,16 @@ def get_netmask(host_ip):
     return netmask
 
 
-def sock_addr_resolution_check(ip, queue):
-    try:
-        socket.gethostbyaddr(ip)
-        queue.append(ip)
-
-    except (socket.herror, socket.gaierror):
-        pass
-
-
 def ping_check(ip, queue):
-    pass
+    # Ping IP
+    ping_args = ['ping', '-n', PING_CNT_ARG, '-w', PING_TIMEOUT_MS_ARG, ip]
+    res = subprocess.run(ping_args,
+                         stdout=subprocess.DEVNULL,
+                         stderr=subprocess.STDOUT)
+
+    if res.returncode == 0:
+        # IP active so add to queue
+        queue.append(ip)
 
 
 def lan_scan():
@@ -67,8 +69,8 @@ def lan_scan():
             # Skip localhost
             if net_host_addr != host_ip_addr:
                 # Schedule active check
-                executor.submit(sock_addr_resolution_check,
-                                net_host_addr.exploded,
+                executor.submit(ping_check,
+                                str(net_host_addr),
                                 ip_queue)
 
     return list(ip_queue)
