@@ -28,7 +28,7 @@ from timeit import default_timer as timer
 if __name__ == '__main__':
     start = timer()
 
-    active_ips = lanscan.run()
+    active_ips = lanscan.execute()
 
     end = timer()
 

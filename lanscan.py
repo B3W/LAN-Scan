@@ -81,11 +81,11 @@ def __ping_check(ip, queue):
         queue.append(ip)
 
 
-def run():
+def execute():
     '''
     Runs the scan of the LAN
 
-    :returns: List of active IP addresses
+    :returns: List of active IP addresses in subnet
     '''
     # Deque of active IP addresses
     ip_queue = deque()
