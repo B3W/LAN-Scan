@@ -96,6 +96,9 @@ def execute():
     # Get netmask for localhost
     netmask = __get_netmask(host_ip_str)
 
+    if len(netmask.strip()) == 0:
+        raise RuntimeError('Unable to determine netmask.')
+
     # Construct network localhost lives on
     net = ipaddress.ip_network(host_ip_str + '/' + netmask, strict=False)
 
